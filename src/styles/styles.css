@@ -4,6 +4,9 @@
 .red{
     color: #b00000;
 }
+.dndList{
+    height: 90%;
+}
 .dndSorter li{
     position: relative;
     max-width: 10em;
