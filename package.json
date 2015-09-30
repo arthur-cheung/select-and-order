@@ -1,14 +1,14 @@
 {
-    "name": "front_end_playground",
+    "name": "select_and_order",
     "version": "0.0.1",
-    "description": "Playground for Arthur's testing",
+    "description": "Playground for Select and Order",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/arthur-cheung/front-end-template.git"
+        "url": "https://github.com/arthur-cheung/select-and-order.git"
     },
     "author": "Arthur Cheung",
     "license": "ISC",

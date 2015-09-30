@@ -4,3 +4,16 @@
 .red{
     color: #b00000;
 }
+.dndSorter li{
+    position: relative;
+    max-width: 10em;
+}
+.removeLink{
+    position: absolute;
+    color: darkgrey;
+    right: 0;
+    top: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.7em;
+    cursor: pointer;
+}
