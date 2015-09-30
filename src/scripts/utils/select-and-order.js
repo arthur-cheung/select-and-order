@@ -338,13 +338,16 @@ function SearchAndOrder(node, list, options) {
         });
     }
     // Actual code
-
+    node.className += ' selectAndOrder';
     // Create two child nodes, one for the select list, one for the order list
     var selectNode = document.createElement('div');
     node.appendChild(selectNode);
+    var orderNodeContainer = document.createElement('div');
     var orderNode = document.createElement('ul');
     orderNode.className = 'dndSorter';
-    node.appendChild(orderNode);
+    orderNodeContainer.appendChild(orderNode);
+    node.appendChild(orderNodeContainer);
+
     var selectedItems = []
     options.setOnCheckboxChange = function (checkedNode) {
         var index = Number(!!checkedNode && checkedNode.getAttribute('data-index'));

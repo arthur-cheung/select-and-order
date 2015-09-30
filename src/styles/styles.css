@@ -17,3 +17,31 @@
     font-size: 0.7em;
     cursor: pointer;
 }
+.selectAndOrder ul{
+    text-align: left;
+    padding: 0;
+}
+.selectAndOrder li{
+    list-style: none;
+}
+.selectAndOrder{
+    text-align: center;
+}
+.selectAndOrder > *{
+    width: 10em;
+    display: inline-block;
+    vertical-align: top;
+    border: silver 1px solid;
+    height: 20em;
+    border-radius: 1em;
+    padding: 2em;
+    margin: 0 2em;
+    text-align: left;
+}
+.selectAndOrder .multiSelectContainer{
+    height: 100%;
+}
+.selectAndOrder .multiSelectContainer .multiSelect{
+    height: 85%;
+    overflow: auto;
+}
