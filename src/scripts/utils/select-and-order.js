@@ -34,7 +34,7 @@ function SearchAndOrder(node, list, options) {
         }
     }
 
-    function buildListItems(ul, listItems) {
+    function buildListItems(ul, listItems, options) {
         !!debugOn && console.info(JSON.stringify(listItems));
         forEach(listItems, function buildListItem(listItem) {
             var li = document.createElement('div'); // It's actually a div
@@ -50,6 +50,40 @@ function SearchAndOrder(node, list, options) {
             li.className = 'dndListItem';
             li.setAttribute('data-type', dataType);
             li.innerText = (typeof listItem === 'string' ? listItem : listItem.name);
+
+            // Add add / remove links
+            if(!!options && !!options.includeAddRemoveLink){
+                var actionLink = document.createElement('span');
+                actionLink.className = 'liAction';
+                li.appendChild(actionLink);
+                actionLink.onclick = function(){
+                    var parentUl = li.parentNode;
+
+                    if(!parentUl){
+                        console.error('ERROR: No parent found for this link, cannot perform action.');
+                        return;
+                    }
+                    var action = (parentUl.className.indexOf('targetList') != -1) ? 'remove' : 'add';
+                    var dropItem = '';
+                    if(li.getAttribute('data-type') == 'nvp'){
+                        dropItem = {};
+                        dropItem.name = li.innerText;
+                        dropItem.value = li.getAttribute('data-value');
+                    }
+                    else if(li.getAttribute('data-type') == 'string'){
+                        dropItem = li.innerText;
+                    }
+                    if(action == 'add'){
+                        var targetUl = node.querySelector('.targetList');
+                        targetUl.appendChild(li);
+                        addSelected(dropItem);
+                    }
+                    else if(action == 'remove'){
+                        removeSelected(dropItem)
+                        rebuildAvailableList();
+                    }
+                }
+            }
             ul.appendChild(li);
         });
     }
@@ -58,7 +92,7 @@ function SearchAndOrder(node, list, options) {
         var ul = document.createElement('div'); // It's actually a div
         ul.className = 'dndList' + (!!options && !!options.class ? (' ' + options.class) : '');
 
-        buildListItems(ul, listItems);
+        buildListItems(ul, listItems, options);
         node.appendChild(ul);
 
         return ul;
@@ -148,15 +182,15 @@ function SearchAndOrder(node, list, options) {
         // Build the filtered availableModel first
         var filteredList = [];
         forEach(availableIndices, function forEachModelItem(index){
-            var item = typeof model[index] === 'string' ? model[index] : (model[index].name || '');
-            if(item.indexOf(filter) != -1){
-                filteredList.push(item);
+            var displayText = typeof model[index] === 'string' ? model[index] : (model[index].name || '');
+            if(displayText.indexOf(filter) != -1){
+                filteredList.push(model[index]);
             }
         });
         // Then re-build the source list from filtered items;
         var sourceListNode = node.querySelector('.sourceList');
         sourceListNode.innerHTML = '';
-        buildListItems(sourceListNode, filteredList);
+        buildListItems(sourceListNode, filteredList, {includeAddRemoveLink: true});
     }
     function rebuildAvailableList(){
         // We'll do this be removing children and rebuilding from list
@@ -166,7 +200,7 @@ function SearchAndOrder(node, list, options) {
         forEach(availableIndices, function forEachModelItem(index){
             availableList.push(model[index]);
         });
-        buildListItems(sourceListNode, availableList);
+        buildListItems(sourceListNode, availableList, {includeAddRemoveLink: true});
     }
     function createFilterElement(){
         var filterDiv = document.createElement('div');
@@ -191,8 +225,8 @@ function SearchAndOrder(node, list, options) {
     var targetNode = document.createElement('div');
     var id = (!!options && options.id) || (+new Date() + '_dndWidget');
 
-    var sourceUl = buildUnorderedList(sourceNode, list, {class: 'sourceList'});
-    var targetUl = buildUnorderedList(targetNode, [], {class: 'targetList'});
+    var sourceUl = buildUnorderedList(sourceNode, list, {class: 'sourceList', includeAddRemoveLink: true});
+    var targetUl = buildUnorderedList(targetNode, [], {class: 'targetList', includeAddRemoveLink: true});
     node.appendChild(sourceNode);
     node.appendChild(targetNode);
     buildInitialAvailbleIndices();

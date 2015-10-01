@@ -92,10 +92,36 @@
 .selectAndOrder .dndList .dndListItem{
     padding: 0.1em 0.5em;
     cursor: move;
+    position: relative;
 }
 .selectAndOrder .dndList .dndListItem:hover{
     background-color: aliceblue;
 }
 .selectAndOrder .dndList .dndListItem:nth-child(2n){
     background-color: #fbfbfb;
+}
+
+.dndList .dndListItem .liAction{
+    position: absolute;
+    right: 0.5em;
+    font-family: Helvetica, Arial, sans-serif;
+    color: grey;
+    cursor: pointer;
+    font-size: 1.3em;
+    font-weight: 500;
+}
+.targetList .dndListItem .liAction{
+    font-size: 1em;
+}
+.sourceList .dndListItem .liAction::after{
+    content: "+";
+}
+.sourceList .dndListItem .liAction:hover{
+    color: #49df25;
+}
+.targetList .dndListItem .liAction::after{
+    content: "x";
+}
+.targetList .dndListItem .liAction:hover{
+    color: red;
 }
