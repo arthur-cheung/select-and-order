@@ -1,4 +1,11 @@
 function SearchAndOrder(node, list, options) {
+    // Variables
+    var model = list;
+    var availableIndices = [];
+    var selectedIndices = [];
+    var debugOn = false;
+
+    // Functions
     function forEach(list, callback) {
         function isNodeList(nodes) {
             var stringRepr = Object.prototype.toString.call(nodes);
@@ -22,32 +29,118 @@ function SearchAndOrder(node, list, options) {
             }
         }
     }
-    function indexOfItem(list, item){
-        for(var i = 0; !!list && i < list.length; i++){
-            if(!!item && typeof item === 'string' && !!list[i] && typeof list[i] === 'string' && item == list[i]){
-                return i;
-            }
-            else if(!!item && typeof item === 'object' && !!list[i] && typeof list[i] === 'object' ){
-                if(!!item.name && !!item.value && list[i].name == item.name && list[i].value == item.value){
-                    return i;
-                }
-            }
-        }
-        return -1;
-    }
 
-    function buildUnorderedList(node, listItems){
-        var ul = document.createElement('div');
-        ul.className = 'dndList';
-
-        forEach(listItems, function forEachListItems(listItem){
+    function buildListItems(ul, listItems) {
+        forEach(listItems, function buildListItem(listItem) {
             var li = document.createElement('div');
+            li.setAttribute('data-value', (typeof listItem === 'string' ? listItem : listItem.value));
+            var dataType = 'unknown';
+            if (typeof listItem === 'string') {
+                dataType = 'string';
+            }
+            else if (typeof listItem === 'object' && !!listItem.name && !!listItem.value) {
+                dataType = 'nvp';
+            }
+            li.setAttribute('data-type', dataType);
             li.innerText = (typeof listItem === 'string' ? listItem : listItem.name);
             ul.appendChild(li);
         });
+    }
+
+    function buildUnorderedList(node, listItems, options){
+        var ul = document.createElement('div');
+        ul.className = 'dndList' + (!!options && !!options.class ? (' ' + options.class) : '');
+
+        buildListItems(ul, listItems);
         node.appendChild(ul);
 
         return ul;
+    }
+    function indexOfItem(list, item){
+        var indexToRemove = -1;
+        forEach(list, function forEachListItem(listItem, index){
+            if(indexToRemove != -1){    // No need to keep searching if we found it already
+                return;
+            }
+            if(typeof item === 'string' && typeof listItem === 'string'){
+                if(item == listItem){
+                    indexToRemove = index;
+                }
+            }
+            else if((typeof listItem === 'object' && !!listItem.name && !!listItem.value) && (typeof item === 'object' && !!item.name && !!item.value)){
+                if(listItem.name == item.name && listItem.value == item.value){
+                    indexToRemove = index;
+                }
+            }
+        });
+
+        return indexToRemove;
+    }
+    function buildInitialAvailbleIndices(){
+        forEach(model, function forEachModelItem(item, index){
+            availableIndices.push(index);
+        });
+    }
+    function addSelected(item){
+        // Find the index of item in model
+        var index = indexOfItem(model, item);
+
+        // Add to selectedIndices if it isn't already there
+        if(index != -1 && selectedIndices.indexOf(index) == -1){
+            selectedIndices.push(index);
+        }
+        // Remove from availableIndices
+        var indexOfAvailable = availableIndices.indexOf(index);
+        if(indexOfAvailable != -1){
+            availableIndices.splice(indexOfAvailable, 1);
+        }
+        !!debugOn && console.info('DEBUG => Adding item model[' + index + ']: ' + JSON.stringify(item));
+    }
+    function removeSelected(item){
+        // Find the index of item in model
+        var index = indexOfItem(model, item);
+        // Remove from selectedIndices if it is there
+        var indexOfSelected = selectedIndices.indexOf(index);
+        if(indexOfSelected != -1){
+            selectedIndices.splice(indexOfSelected, 1);
+        }
+
+        // Add to availableIndices, then sort
+        if(index != -1 && availableIndices.indexOf(index) == -1){
+            availableIndices.push(index);
+            availableIndices.sort(function(a, b){return a-b});
+        }
+        !!debugOn && console.info('DEBUG => Removing item model[' + index + ']: ' + JSON.stringify(item));
+    }
+    function rebuildSelectedIndices(){
+        var targetListItems = node.querySelectorAll('.targetList > div');
+        selectedIndices = [];
+        forEach(targetListItems, function forEachTargetListItem(node){
+            // Get selected item
+            var newSelectedItem = '';
+            if(node.getAttribute('data-type') == 'nvp'){
+                newSelectedItem = {};
+                newSelectedItem.value = node.getAttribute('data-value');
+                newSelectedItem.name = node.innerText;
+            }
+            else if(node.getAttribute('data-type') == 'string'){
+                newSelectedItem = node.innerText;
+            }
+
+            // Find index
+            var index = indexOfItem(newSelectedItem);
+            selectedIndices.push(index);
+        });
+    }
+    function rebuildAvailableList(){
+        // We'll do this be removing children and rebuilding from list
+        var sourceListNode = node.querySelector('.sourceList');
+        sourceListNode.innerHTML = '';
+        var availableList = [];
+        forEach(availableIndices, function forEachModelItem(index){
+            availableList.push(model[index]);
+        });
+        buildListItems(sourceListNode, availableList);
     }
 
 
@@ -56,13 +149,15 @@ function SearchAndOrder(node, list, options) {
     // Create two child nodes, one for the select list, one for the order list
     var sourceNode = document.createElement('div');
     var targetNode = document.createElement('div');
+    var id = (!!options && options.id) || (+new Date() + '_dndWidget');
 
-    var sourceUl = buildUnorderedList(sourceNode, list);
-    var targetUl = buildUnorderedList(targetNode);
+    var sourceUl = buildUnorderedList(sourceNode, list, {class: 'sourceList'});
+    var targetUl = buildUnorderedList(targetNode, [], {class: 'targetList'});
     node.appendChild(sourceNode);
     node.appendChild(targetNode);
+    buildInitialAvailbleIndices();
 
-    var selectedItems = [];
+
 
     var dndWidget = dragula([sourceUl, targetUl], {
         isContainer: function (el) {
@@ -72,7 +167,7 @@ function SearchAndOrder(node, list, options) {
             return true; // elements are always draggable by default
         },
         accepts: function (el, target, source, sibling) {
-            return true; // elements can be dropped in any of the `containers` by default
+            return !(source == sourceUl && target == sourceUl);
         },
         invalid: function (el, target) { // don't prevent any drags from initiating by default
             return false;
@@ -83,22 +178,45 @@ function SearchAndOrder(node, list, options) {
         removeOnSpill: false,          // spilling will `.remove` the element, if this is true
         mirrorContainer: document.body // set the element that gets mirror elements appended
     });
-//    dndWidget.on('drop', function(){
-//        var listItems = document.querySelectorAll('ul.dndSorter li');
-//        selectedItems = [];
-//        forEach(listItems, function forEachListItem(listItem, index){
-//            var selectedItem;
-//            if(listItem.getAttribute('data-type') == 'nvp'){
-//                selectedItem = {name: '', value: ''};
-//                selectedItem.name = listItem.innerText;
-//                selectedItem.value = listItem.getAttribute('data-value');
-//            }
-//            else{
-//                selectedItem = listItem.innerText;
-//            }
-//            selectedItems.push(selectedItem);
-//            listItem.setAttribute('data-index', index);
-//        });
-//    });
+    dndWidget.on('drop', function(el, target, source){
+        // Get drop item
+        var dropItem = '';
+        if(el.getAttribute('data-type') == 'nvp'){
+            dropItem = {};
+            dropItem.name = el.innerText;
+            dropItem.value = el.getAttribute('data-value');
+        }
+        else if(el.getAttribute('data-type') == 'string'){
+            dropItem = el.innerText;
+        }
+        // Items from source list can only bit dropped onto target
+        // But items from target list can be dropped anywhere
+        if(source == sourceUl){
+            if(target == sourceUl){
+                return false;
+            }
+            if(target == targetUl){
+                addSelected(dropItem);
+                return true;
+            }
+        }
+        if(source == targetUl){
+            if(target == sourceUl){
+                removeSelected(dropItem);
+
+                // Reorder the source list
+                rebuildAvailableList();
+                return true;
+            }
+            if(target == targetUl){
+                rebuildSelectedIndices();
+            }
+        }
+        return true;
+    });
+    this.debug = function(flag){
+        debugOn = !!flag;
+        return {model: model, selectedIndices: selectedIndices, availableIndices: availableIndices}
+    }
 }
 
