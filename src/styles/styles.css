@@ -50,11 +50,14 @@
     display: inline-block;
     vertical-align: top;
     border: silver 1px solid;
-    height: 20em;
+    height: 25em;
     border-radius: 1em;
     padding: 1.5em 1em;
-    margin: 0 2em;
+    margin: 2em;
     text-align: left;
+    position: relative;
+    background-color: #4195c6;
+    box-shadow: 2px 2px 1px #888888;
 }
 .selectAndOrder .multiSelectContainer{
     height: 100%;
@@ -63,19 +66,17 @@
     height: 85%;
     overflow: auto;
 }
-.selectAndOrder > div{
-    position: relative;
-    background-color: #4195c6;
-}
 .selectAndOrder .filterBox{
     position: absolute;
     top: 1em;
     padding-bottom: 0.3em;
     border-bottom: whitesmoke 1px dotted;
+    width: 90%;
 }
 .selectAndOrder .filterBox input{
     border: 1px solid silver;
     border-radius: 4px;
+    padding: 0.3em 0.5em;
 }
 .selectAndOrder .filterBox .label{
     font-style: italic;
@@ -84,12 +85,13 @@
     color: white;
 }
 .selectAndOrder .dndList{
-    margin-top: 2.7em;
+    margin-top: 3em;
     overflow: auto;
     background-color: white;
 }
 .selectAndOrder .dndList .dndListItem{
     padding: 0.1em 0.5em;
+    cursor: move;
 }
 .selectAndOrder .dndList .dndListItem:hover{
     background-color: aliceblue;

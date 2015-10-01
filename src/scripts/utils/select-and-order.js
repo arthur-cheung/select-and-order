@@ -35,6 +35,7 @@ function SearchAndOrder(node, list, options) {
     }
 
     function buildListItems(ul, listItems) {
+        !!debug && console.info(JSON.stringify(listItems));
         forEach(listItems, function buildListItem(listItem) {
             var li = document.createElement('div'); // It's actually a div
             li.setAttribute('data-value', (typeof listItem === 'string' ? listItem : listItem.value));
@@ -45,6 +46,7 @@ function SearchAndOrder(node, list, options) {
             else if (typeof listItem === 'object' && !!listItem.name && !!listItem.value) {
                 dataType = 'nvp';
             }
+            !!debug && console.info(listItem + ': ' + dataType);
             li.className = 'dndListItem';
             li.setAttribute('data-type', dataType);
             li.innerText = (typeof listItem === 'string' ? listItem : listItem.name);
@@ -138,8 +140,10 @@ function SearchAndOrder(node, list, options) {
         });
     }
     function buildFilteredAvailableList(filter){
+        !!debug && console.info('Filter: ' + filter);
         if(!filter){    // If not filter supplied, just return full list;
             rebuildAvailableList();
+            return;
         }
         // Build the filtered availableModel first
         var filteredList = [];
@@ -169,6 +173,11 @@ function SearchAndOrder(node, list, options) {
         filterDiv.className = 'filterBox';
         var html = '<div class="label">Filter:</div><input type="text"/>';
         filterDiv.innerHTML = html;
+        var input = filterDiv.querySelector('input');
+        input.onkeyup = function(){
+            !!debug && console.info('Keyup: ' + this.value);
+            buildFilteredAvailableList(this.value);
+        };
 
         return filterDiv;
     }
