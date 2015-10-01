@@ -73,6 +73,7 @@ function SearchAndOrder(node, list, options) {
                     else if(li.getAttribute('data-type') == 'string'){
                         dropItem = li.innerText;
                     }
+                    parentUl.removeChild(li);
                     if(action == 'add'){
                         var targetUl = node.querySelector('.targetList');
                         targetUl.appendChild(li);
@@ -80,7 +81,10 @@ function SearchAndOrder(node, list, options) {
                     }
                     else if(action == 'remove'){
                         removeSelected(dropItem)
+                        // Reorder the source list
                         rebuildAvailableList();
+                        // Clear the filter input
+                        clearFilterInput();
                     }
                 }
             }
@@ -118,6 +122,7 @@ function SearchAndOrder(node, list, options) {
         return indexToRemove;
     }
     function buildInitialAvailbleIndices(){
+        availableIndices = [];
         forEach(model, function forEachModelItem(item, index){
             availableIndices.push(index);
         });
@@ -182,6 +187,10 @@ function SearchAndOrder(node, list, options) {
         // Build the filtered availableModel first
         var filteredList = [];
         forEach(availableIndices, function forEachModelItem(index){
+            if(!model[index]){
+                console.error('ERROR: model[' + index + '] is null.');
+                return;
+            }
             var displayText = typeof model[index] === 'string' ? model[index] : (model[index].name || '');
             if(displayText.indexOf(filter) != -1){
                 filteredList.push(model[index]);
@@ -202,6 +211,16 @@ function SearchAndOrder(node, list, options) {
         });
         buildListItems(sourceListNode, availableList, {includeAddRemoveLink: true});
     }
+    function rebuildSelectedList(){
+        // We'll do this be removing children and rebuilding from list
+        var targetListNode = node.querySelector('.targetList');
+        targetListNode.innerHTML = '';
+        var selectedList = [];
+        forEach(selectedIndices, function forEachModelItem(index){
+            selectedList.push(model[index]);
+        });
+        buildListItems(targetListNode, selectedList, {includeAddRemoveLink: true});
+    }
     function createFilterElement(){
         var filterDiv = document.createElement('div');
         filterDiv.className = 'filterBox';
@@ -214,6 +233,29 @@ function SearchAndOrder(node, list, options) {
         };
 
         return filterDiv;
+    }
+    function clearFilterInput(){
+        var input = node.querySelector('.filterBox input');
+        input.value = '';
+    }
+    function reset(){
+        selectedIndices = [];
+        rebuildSelectedList();
+        buildInitialAvailbleIndices();
+        // Reorder the source list
+        rebuildAvailableList();
+        // Clear the filter input
+        clearFilterInput();
+    }
+    function setSelected(deltaSelected){
+        // Reset first
+        reset();
+
+        forEach(deltaSelected, function forEachDeltaSelectedItem(deltaItem){
+            addSelected(deltaItem);
+        });
+        rebuildSelectedList();
+        rebuildAvailableList();
     }
 
 
@@ -280,6 +322,8 @@ function SearchAndOrder(node, list, options) {
 
                 // Reorder the source list
                 rebuildAvailableList();
+                // Clear the filter input
+                clearFilterInput();
                 return true;
             }
             if(target == targetUl){
@@ -288,7 +332,10 @@ function SearchAndOrder(node, list, options) {
         }
         return true;
     });
+    this.setSelected = setSelected;
+    this.reset = reset;
     this.debug = debug;
-    this.filter = buildFilteredAvailableList;
+    this.filterAvailable = buildFilteredAvailableList;
+
 }
 
