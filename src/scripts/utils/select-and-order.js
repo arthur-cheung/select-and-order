@@ -6,6 +6,10 @@ function SearchAndOrder(node, list, options) {
     var debugOn = false;
 
     // Functions
+    function debug(flag){
+        debugOn = !!flag;
+        return {model: model, selectedIndices: selectedIndices, availableIndices: availableIndices}
+    }
     function forEach(list, callback) {
         function isNodeList(nodes) {
             var stringRepr = Object.prototype.toString.call(nodes);
@@ -32,7 +36,7 @@ function SearchAndOrder(node, list, options) {
 
     function buildListItems(ul, listItems) {
         forEach(listItems, function buildListItem(listItem) {
-            var li = document.createElement('div');
+            var li = document.createElement('div'); // It's actually a div
             li.setAttribute('data-value', (typeof listItem === 'string' ? listItem : listItem.value));
             var dataType = 'unknown';
             if (typeof listItem === 'string') {
@@ -41,6 +45,7 @@ function SearchAndOrder(node, list, options) {
             else if (typeof listItem === 'object' && !!listItem.name && !!listItem.value) {
                 dataType = 'nvp';
             }
+            li.className = 'dndListItem';
             li.setAttribute('data-type', dataType);
             li.innerText = (typeof listItem === 'string' ? listItem : listItem.name);
             ul.appendChild(li);
@@ -48,7 +53,7 @@ function SearchAndOrder(node, list, options) {
     }
 
     function buildUnorderedList(node, listItems, options){
-        var ul = document.createElement('div');
+        var ul = document.createElement('div'); // It's actually a div
         ul.className = 'dndList' + (!!options && !!options.class ? (' ' + options.class) : '');
 
         buildListItems(ul, listItems);
@@ -132,6 +137,23 @@ function SearchAndOrder(node, list, options) {
             selectedIndices.push(index);
         });
     }
+    function buildFilteredAvailableList(filter){
+        if(!filter){    // If not filter supplied, just return full list;
+            rebuildAvailableList();
+        }
+        // Build the filtered availableModel first
+        var filteredList = [];
+        forEach(availableIndices, function forEachModelItem(index){
+            var item = typeof model[index] === 'string' ? model[index] : (model[index].name || '');
+            if(item.indexOf(filter) != -1){
+                filteredList.push(item);
+            }
+        });
+        // Then re-build the source list from filtered items;
+        var sourceListNode = node.querySelector('.sourceList');
+        sourceListNode.innerHTML = '';
+        buildListItems(sourceListNode, filteredList);
+    }
     function rebuildAvailableList(){
         // We'll do this be removing children and rebuilding from list
         var sourceListNode = node.querySelector('.sourceList');
@@ -142,12 +164,21 @@ function SearchAndOrder(node, list, options) {
         });
         buildListItems(sourceListNode, availableList);
     }
+    function createFilterElement(){
+        var filterDiv = document.createElement('div');
+        filterDiv.className = 'filterBox';
+        var html = '<div class="label">Filter:</div><input type="text"/>';
+        filterDiv.innerHTML = html;
+
+        return filterDiv;
+    }
 
 
     // Actual code
     node.className += ' selectAndOrder';
     // Create two child nodes, one for the select list, one for the order list
     var sourceNode = document.createElement('div');
+    sourceNode.appendChild(createFilterElement());
     var targetNode = document.createElement('div');
     var id = (!!options && options.id) || (+new Date() + '_dndWidget');
 
@@ -214,9 +245,7 @@ function SearchAndOrder(node, list, options) {
         }
         return true;
     });
-    this.debug = function(flag){
-        debugOn = !!flag;
-        return {model: model, selectedIndices: selectedIndices, availableIndices: availableIndices}
-    }
+    this.debug = debug;
+    this.filter = buildFilteredAvailableList;
 }
 

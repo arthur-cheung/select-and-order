@@ -46,13 +46,13 @@
     text-align: center;
 }
 .selectAndOrder > *{
-    width: 10em;
+    width: 25em;
     display: inline-block;
     vertical-align: top;
     border: silver 1px solid;
     height: 20em;
     border-radius: 1em;
-    padding: 1.5em;
+    padding: 1.5em 1em;
     margin: 0 2em;
     text-align: left;
 }
@@ -62,4 +62,38 @@
 .selectAndOrder .multiSelectContainer .multiSelect{
     height: 85%;
     overflow: auto;
+}
+.selectAndOrder > div{
+    position: relative;
+    background-color: #4195c6;
+}
+.selectAndOrder .filterBox{
+    position: absolute;
+    top: 1em;
+    padding-bottom: 0.3em;
+    border-bottom: whitesmoke 1px dotted;
+}
+.selectAndOrder .filterBox input{
+    border: 1px solid silver;
+    border-radius: 4px;
+}
+.selectAndOrder .filterBox .label{
+    font-style: italic;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 0.8em;
+    color: white;
+}
+.selectAndOrder .dndList{
+    margin-top: 2.7em;
+    overflow: auto;
+    background-color: white;
+}
+.selectAndOrder .dndList .dndListItem{
+    padding: 0.1em 0.5em;
+}
+.selectAndOrder .dndList .dndListItem:hover{
+    background-color: aliceblue;
+}
+.selectAndOrder .dndList .dndListItem:nth-child(2n){
+    background-color: #fbfbfb;
 }
