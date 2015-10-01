@@ -5,8 +5,11 @@
     color: #b00000;
 }
 .dndList{
-    height: 90%;
+    height: 85%;
 }
+/*.targetList{*/
+    /*height: 95%;*/
+/*}*/
 .dndSorter li{
     position: relative;
     max-width: 10em;
@@ -50,7 +53,7 @@
     display: inline-block;
     vertical-align: top;
     border: silver 1px solid;
-    height: 25em;
+    height: 37em;
     border-radius: 1em;
     padding: 1.5em 1em;
     margin: 2em;
@@ -63,14 +66,13 @@
     height: 100%;
 }
 .selectAndOrder .multiSelectContainer .multiSelect{
-    height: 85%;
+    height: 80%;
     overflow: auto;
 }
 .selectAndOrder .filterBox{
     position: absolute;
-    top: 1em;
+    top: 4em;
     padding-bottom: 0.3em;
-    border-bottom: whitesmoke 1px dotted;
     width: 90%;
 }
 .selectAndOrder .filterBox input{
@@ -85,10 +87,14 @@
     color: white;
 }
 .selectAndOrder .dndList{
-    margin-top: 3em;
+    margin-top: 6em;
     overflow: auto;
     background-color: white;
+    border-top: whitesmoke 1px dotted;
 }
+/*.selectAndOrder .dndList.targetList{*/
+    /*margin-top: 2.5em;*/
+/*}*/
 .selectAndOrder .dndList .dndListItem{
     padding: 0.1em 0.5em;
     cursor: move;
@@ -124,4 +130,45 @@
 }
 .targetList .dndListItem .liAction:hover{
     color: red;
+}
+.selectAndOrder h2{
+    position: absolute;
+    top: 0;
+    color: whitesmoke;
+    font-family: arial, helvetica, verdana, sans-serif;
+    font-weight: lighter;
+}
+.selectAndOrder .clearButton{
+    position: absolute;
+    left: 1.5em;
+    top: 5.5em;
+    background-color: #ededed;
+    border: 1px solid silver;
+    border-radius: 4px;
+    padding: 0.5em 1em;
+    cursor: pointer;
+}
+.selectAndOrder .clearButton:hover{
+    background-color: rgba(176, 45, 27, 0.88);
+    color: white;
+    outline: none;
+}
+.selectAndOrder .filterBox input{
+    padding-right: 1.5em;
+}
+.selectAndOrder .filterBox .filterReset{
+    position: absolute;
+    left: 10.8em;
+    top: 1.45em;
+    font-family: Helvetica, Arial, sans-serif;
+    color: white;
+    font-size: 0.9em;
+    background-color: #dadada;
+    vertical-align: middle;
+    border-radius: 3em;
+    width: 1em;
+    line-height: 0.95em;
+    display: inline-block;
+    text-align: center;
+    cursor: pointer;
 }

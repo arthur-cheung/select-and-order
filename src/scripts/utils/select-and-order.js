@@ -232,6 +232,16 @@ function SearchAndOrder(node, list, options) {
             buildFilteredAvailableList(this.value);
         };
 
+        // Add reset button
+        var resetButton = document.createElement('span');
+        resetButton.className = 'filterReset';
+        resetButton.innerText = 'x';
+        resetButton.onclick = function(){
+            clearFilterInput();
+            buildFilteredAvailableList('');
+        };
+        filterDiv.appendChild(resetButton);
+
         return filterDiv;
     }
     function clearFilterInput(){
@@ -257,14 +267,32 @@ function SearchAndOrder(node, list, options) {
         rebuildSelectedList();
         rebuildAvailableList();
     }
+    function createClearSelectionButton(){
+        var button = document.createElement('input');
+        button.type = 'button';
+        button.value = 'Clear Selection';
+        button.className = 'clearButton';
+        button.onclick = function(){
+            reset();
+        };
+
+        return button;
+    }
 
 
     // Actual code
     node.className += ' selectAndOrder';
     // Create two child nodes, one for the select list, one for the order list
     var sourceNode = document.createElement('div');
+    var sourceHeading = document.createElement('h2');
+    sourceHeading.innerText = 'Available';
+    sourceNode.appendChild(sourceHeading);
     sourceNode.appendChild(createFilterElement());
     var targetNode = document.createElement('div');
+    var targetHeading = document.createElement('h2');
+    targetHeading.innerText = 'Selected';
+    targetNode.appendChild(targetHeading);
+    targetNode.appendChild(createClearSelectionButton());
     var id = (!!options && options.id) || (+new Date() + '_dndWidget');
 
     var sourceUl = buildUnorderedList(sourceNode, list, {class: 'sourceList', includeAddRemoveLink: true});
