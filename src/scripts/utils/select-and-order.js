@@ -257,7 +257,7 @@ function SearchAndOrder(node, list, options) {
         // Clear the filter input
         clearFilterInput();
     }
-    function setSelected(deltaSelected){
+    function setSelectedModel(deltaSelected){
         // Reset first
         reset();
 
@@ -277,6 +277,23 @@ function SearchAndOrder(node, list, options) {
         };
 
         return button;
+    }
+    function getModel(){
+        return model;
+    }
+    function getSelectedModel(){
+        var selectedModel = [];
+        forEach(selectedIndices, function forSelectedIndex(index){
+            selectedModel.push(model[index]);
+        });
+        return selectedModel;
+    }
+    function getAvailableModel(){
+        var availableModel = [];
+        forEach(availableIndices, function forSelectedIndex(index){
+            availableModel.push(model[index]);
+        });
+        return availableModel;
     }
 
 
@@ -360,10 +377,14 @@ function SearchAndOrder(node, list, options) {
         }
         return true;
     });
-    this.setSelected = setSelected;
+
+    // Public functions
+    this.setSelectedModel = setSelectedModel;
     this.reset = reset;
     this.debug = debug;
     this.filterAvailable = buildFilteredAvailableList;
-
+    this.getModel = getModel;
+    this.getAvailableModel = getAvailableModel;
+    this.getSelectedModel = getSelectedModel;
 }
 
