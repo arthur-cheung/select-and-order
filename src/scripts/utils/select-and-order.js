@@ -1,4 +1,40 @@
 function SearchAndOrder(node, list, options) {
+    var log = {
+        app: 'SearchAndOrder',
+        level: 'all',
+        setLogLevel: function(level){
+            this.level = level;
+        },
+        error: function(message){
+            if(['error', 'warning', 'info', 'all'].indexOf(this.level) != -1){
+                if(typeof message == 'object'){
+                    message = JSON.stringify(message);
+                }
+                console.error(this.app + ' => ' + message);
+            }
+        },
+        info: function(message){
+            if(['info', 'all'].indexOf(this.level) != -1){
+                if(typeof message == 'object'){
+                    message = JSON.stringify(message);
+                }
+                console.info(this.app + ' => ' + message);
+            }
+        },
+        warning: function(message){
+            if(['warning', 'info', 'all'].indexOf(this.level) != -1){
+                if(typeof message == 'object'){
+                    message = JSON.stringify(message);
+                }
+                console.warn(this.app + ' => ' + message);
+            }
+        }
+    }
+    if(!node){
+        log.error('No node supplied. Cannot create.');
+        return;
+    }
+
     // Variables
     var model = list;
     var availableIndices = [];
@@ -35,7 +71,7 @@ function SearchAndOrder(node, list, options) {
     }
 
     function buildListItems(ul, listItems, options) {
-        !!debugOn && console.info(JSON.stringify(listItems));
+        !!debugOn && log.info(JSON.stringify(listItems));
         forEach(listItems, function buildListItem(listItem) {
             var li = document.createElement('div'); // It's actually a div
             li.setAttribute('data-value', (typeof listItem === 'string' ? listItem : listItem.value));
@@ -46,7 +82,7 @@ function SearchAndOrder(node, list, options) {
             else if (typeof listItem === 'object' && !!listItem.name && !!listItem.value) {
                 dataType = 'nvp';
             }
-            !!debugOn && console.info(listItem + ': ' + dataType);
+            !!debugOn && log.info(listItem + ': ' + dataType);
             li.className = 'dndListItem';
             li.setAttribute('data-type', dataType);
             li.innerText = (typeof listItem === 'string' ? listItem : listItem.name);
@@ -60,7 +96,7 @@ function SearchAndOrder(node, list, options) {
                     var parentUl = li.parentNode;
 
                     if(!parentUl){
-                        console.error('ERROR: No parent found for this link, cannot perform action.');
+                        log.error('ERROR: No parent found for this link, cannot perform action.');
                         return;
                     }
                     var action = (parentUl.className.indexOf('targetList') != -1) ? 'remove' : 'add';
@@ -140,7 +176,7 @@ function SearchAndOrder(node, list, options) {
         if(indexOfAvailable != -1){
             availableIndices.splice(indexOfAvailable, 1);
         }
-        !!debugOn && console.info('DEBUG => Adding item model[' + index + ']: ' + JSON.stringify(item));
+        !!debugOn && log.info('DEBUG => Adding item model[' + index + ']: ' + JSON.stringify(item));
     }
     function removeSelected(item){
         // Find the index of item in model
@@ -156,7 +192,7 @@ function SearchAndOrder(node, list, options) {
             availableIndices.push(index);
             availableIndices.sort(function(a, b){return a-b});
         }
-        !!debugOn && console.info('DEBUG => Removing item model[' + index + ']: ' + JSON.stringify(item));
+        !!debugOn && log.info('DEBUG => Removing item model[' + index + ']: ' + JSON.stringify(item));
     }
     function rebuildSelectedIndices(){
         var targetListItems = node.querySelectorAll('.targetList > div');
@@ -179,7 +215,7 @@ function SearchAndOrder(node, list, options) {
         });
     }
     function buildFilteredAvailableList(filter){
-        !!debugOn && console.info('Filter: ' + filter);
+        !!debugOn && log.info('Filter: ' + filter);
         if(!filter){    // If not filter supplied, just return full list;
             rebuildAvailableList();
             return;
@@ -188,7 +224,7 @@ function SearchAndOrder(node, list, options) {
         var filteredList = [];
         forEach(availableIndices, function forEachModelItem(index){
             if(!model[index]){
-                console.error('ERROR: model[' + index + '] is null.');
+                log.error('ERROR: model[' + index + '] is null.');
                 return;
             }
             var displayText = typeof model[index] === 'string' ? model[index] : (model[index].name || '');
@@ -228,7 +264,7 @@ function SearchAndOrder(node, list, options) {
         filterDiv.innerHTML = html;
         var input = filterDiv.querySelector('input');
         input.onkeyup = function(){
-            !!debugOn && console.info('Keyup: ' + this.value);
+            !!debugOn && log.info('Keyup: ' + this.value);
             buildFilteredAvailableList(this.value);
         };
 
